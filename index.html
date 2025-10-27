@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rangam X Literary Society</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Walkester&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <h1 class="site-title">Rangam X Literary Society</h1>
+  </header>
+
+  <div class="main-container">
+    <div class="container user-section">
+      <h2>Share Your Thoughts</h2>
+      <textarea id="message" placeholder="Write your story, confession, or poem..."></textarea>
+      <button onclick="sendMessage()">Send Anonymously</button>
+      <div class="link">
+        <a href="#" onclick="showAdminLogin()">Admin Login</a>
+      </div>
+    </div>
+
+    <div class="container admin-login" style="display:none;">
+      <h2>Admin Login</h2>
+      <input type="email" id="adminEmail" placeholder="Email" />
+      <input type="password" id="adminPass" placeholder="Password" />
+      <button onclick="adminLogin()">Login</button>
+    </div>
+
+    <div class="container admin-section">
+      <h2>Inbox</h2>
+      <div id="messages"></div>
+      <button onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
