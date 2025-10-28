@@ -1,75 +1,30 @@
-// Firebase references
-const dbRef = firebase.database().ref("messages");
+// ✅ Initialize EmailJS once the page is loaded
+(function() {
+  emailjs.init("Hzy3nV2XezGcuOIbH"); // Your actual public key
+})();
 
-// Function to send anonymous message
 function sendMessage() {
-  const message = document.getElementById("message").value.trim();
-  if (message === "") {
+  const msgBox = document.getElementById("message");
+  const msg = msgBox.value.trim();
+
+  if (!msg) {
     alert("Please write something before sending!");
     return;
   }
 
-  const newMsgRef = dbRef.push();
-  newMsgRef.set({
-    text: message,
-    timestamp: new Date().toISOString()
-  });
+  // EmailJS Template Parameters
+  const templateParams = {
+    message: msg,
+  };
 
-  alert("Message sent anonymously!");
-  document.getElementById("message").value = "";
-}
-
-// Show admin login section
-function showAdminLogin() {
-  document.querySelector(".user-section").style.display = "none";
-  document.querySelector(".admin-login").style.display = "block";
-}
-
-// Admin credentials (simple for now)
-const ADMIN_EMAIL = "admin@rangam.com";
-const ADMIN_PASS = "rangam123";
-
-// Admin login
-function adminLogin() {
-  const email = document.getElementById("adminEmail").value;
-  const pass = document.getElementById("adminPass").value;
-
-  if (email === ADMIN_EMAIL && pass === ADMIN_PASS) {
-    document.querySelector(".admin-login").style.display = "none";
-    document.querySelector(".admin-section").style.display = "block";
-    loadMessages();
-  } else {
-    alert("Invalid admin credentials!");
-  }
-}
-
-// Logout
-function logout() {
-  document.querySelector(".admin-section").style.display = "none";
-  document.querySelector(".user-section").style.display = "block";
-}
-
-// Load all messages for admin
-function loadMessages() {
-  const msgDiv = document.getElementById("messages");
-  msgDiv.innerHTML = "Loading...";
-
-  dbRef.on("value", (snapshot) => {
-    msgDiv.innerHTML = "";
-    if (snapshot.exists()) {
-      const data = snapshot.val();
-      Object.keys(data).forEach((key) => {
-        const msg = data[key];
-        const msgBox = document.createElement("div");
-        msgBox.className = "message";
-        msgBox.innerHTML = `
-          <p>${msg.text}</p>
-          <small>${new Date(msg.timestamp).toLocaleString()}</small>
-        `;
-        msgDiv.appendChild(msgBox);
-      });
-    } else {
-      msgDiv.innerHTML = "No messages yet.";
-    }
-  });
+  // Send the message using EmailJS
+  emailjs.send("service_7mt04ch", "template_yekl5fh", templateParams)
+    .then(() => {
+      alert("✅ Your message has been sent anonymously!");
+      msgBox.value = ""; // Clear the textarea
+    })
+    .catch((error) => {
+      console.error("❌ EmailJS Error:", error);
+      alert("Failed to send message. Please check console for details.");
+    });
 }
