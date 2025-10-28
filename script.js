@@ -1,71 +1,45 @@
-// Send message anonymously to Firebase
+// Firebase references
+const dbRef = firebase.database().ref("messages");
+
+// Function to send anonymous message
 function sendMessage() {
-  const msg = document.getElementById("message").value.trim();
-  if (msg === "") {
+  const message = document.getElementById("message").value.trim();
+  if (message === "") {
     alert("Please write something before sending!");
     return;
   }
 
-  const newMessageRef = firebase.database().ref("messages").push();
-  newMessageRef.set({
-    text: msg,
-    time: new Date().toLocaleString()
+  const newMsgRef = dbRef.push();
+  newMsgRef.set({
+    text: message,
+    timestamp: new Date().toISOString()
   });
 
+  alert("Message sent anonymously!");
   document.getElementById("message").value = "";
-  alert("Your message has been sent anonymously!");
 }
 
-// Show admin login form
+// Show admin login section
 function showAdminLogin() {
   document.querySelector(".user-section").style.display = "none";
   document.querySelector(".admin-login").style.display = "block";
 }
 
-// Admin login check
+// Admin credentials (simple for now)
+const ADMIN_EMAIL = "admin@rangam.com";
+const ADMIN_PASS = "rangam123";
+
+// Admin login
 function adminLogin() {
   const email = document.getElementById("adminEmail").value;
   const pass = document.getElementById("adminPass").value;
-  if (email === "admin@admin.com" && pass === "admin2025") {
+
+  if (email === ADMIN_EMAIL && pass === ADMIN_PASS) {
     document.querySelector(".admin-login").style.display = "none";
     document.querySelector(".admin-section").style.display = "block";
     loadMessages();
   } else {
-    alert("Invalid credentials!");
-  }
-}
-
-// Load all messages from Firebase
-function loadMessages() {
-  const box = document.getElementById("messages");
-  box.innerHTML = "<p>Loading...</p>";
-
-  firebase.database().ref("messages").on("value", (snapshot) => {
-    const data = snapshot.val();
-    box.innerHTML = "";
-    if (!data) {
-      box.innerHTML = "<p>No messages yet.</p>";
-      return;
-    }
-    const keys = Object.keys(data).reverse();
-    keys.forEach((key) => {
-      const m = data[key];
-      box.innerHTML += `
-        <div class='message-box'>
-          <div class='message-content'>
-            <p>${m.text}</p>
-            <small>${m.time}</small>
-          </div>
-          <button class='delete-btn' onclick='deleteMessage("${key}")'>🗑️</button>
-        </div>`;
-    });
-  });
-}
-
-// Delete a message
-function deleteMessage(id) {
-  if (confirm("Delete this message?")) {
-    firebase.database().ref("messages/" + id).remove();
+    alert("Invalid admin credentials!");
   }
 }
 
@@ -73,4 +47,29 @@ function deleteMessage(id) {
 function logout() {
   document.querySelector(".admin-section").style.display = "none";
   document.querySelector(".user-section").style.display = "block";
+}
+
+// Load all messages for admin
+function loadMessages() {
+  const msgDiv = document.getElementById("messages");
+  msgDiv.innerHTML = "Loading...";
+
+  dbRef.on("value", (snapshot) => {
+    msgDiv.innerHTML = "";
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      Object.keys(data).forEach((key) => {
+        const msg = data[key];
+        const msgBox = document.createElement("div");
+        msgBox.className = "message";
+        msgBox.innerHTML = `
+          <p>${msg.text}</p>
+          <small>${new Date(msg.timestamp).toLocaleString()}</small>
+        `;
+        msgDiv.appendChild(msgBox);
+      });
+    } else {
+      msgDiv.innerHTML = "No messages yet.";
+    }
+  });
 }
